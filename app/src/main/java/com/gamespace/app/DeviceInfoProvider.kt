@@ -26,6 +26,7 @@ object DeviceInfoProvider {
         val glEsVersion: String
     )
 
+    @Suppress("DEPRECATION")
     fun collect(context: Context): Info {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val memInfo = ActivityManager.MemoryInfo()
@@ -33,8 +34,8 @@ object DeviceInfoProvider {
 
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val metrics = context.resources.displayMetrics
-        @Suppress("DEPRECATION")
         val display = wm.defaultDisplay
+        val refreshRate = display.refreshRate
 
         return Info(
             manufacturer = Build.MANUFACTURER,
@@ -50,8 +51,7 @@ object DeviceInfoProvider {
             screenWidthPx = metrics.widthPixels,
             screenHeightPx = metrics.heightPixels,
             densityDpi = metrics.densityDpi,
-            @Suppress("DEPRECATION")
-            refreshRateHz = display.refreshRate,
+            refreshRateHz = refreshRate,
             glEsVersion = am.deviceConfigurationInfo.glEsVersion ?: "unknown"
         )
     }

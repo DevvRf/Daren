@@ -12,9 +12,6 @@ import java.io.InputStreamReader
  */
 class UserServiceImpl : IUserService.Stub() {
 
-    // Required no-arg constructor — Shizuku instantiates this reflectively.
-    constructor()
-
     override fun exec(command: String): String {
         return try {
             val process = ProcessBuilder("sh", "-c", command)
