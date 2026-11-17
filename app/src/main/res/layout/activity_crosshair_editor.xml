@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crosshair Editor"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:background="@color/surface"
+            android:layout_marginTop="16dp">
+
+            <com.gamespace.app.CrosshairDrawView
+                android:id="@+id/previewView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Shape"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="16dp" />
+
+        <RadioGroup
+            android:id="@+id/shapeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton android:id="@+id/radioShapeDot" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dot" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioShapeCross" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cross" android:textColor="@color/text_primary" android:checked="true" />
+            <RadioButton android:id="@+id/radioShapeCircle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Circle" android:textColor="@color/text_primary" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Color"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:id="@+id/colorSwatchRow"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:weightSum="6" />
+
+        <TextView
+            android:id="@+id/labelSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="16dp"
+            android:text="Size: 24dp" />
+        <SeekBar
+            android:id="@+id/seekSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="54"
+            android:progress="18" />
+
+        <TextView
+            android:id="@+id/labelThickness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="8dp"
+            android:text="Thickness: 2dp" />
+        <SeekBar
+            android:id="@+id/seekThickness"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="9"
+            android:progress="1" />
+
+        <TextView
+            android:id="@+id/labelOpacity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="8dp"
+            android:text="Opacity: 100%" />
+        <SeekBar
+            android:id="@+id/seekOpacity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="100" />
+
+        <Button
+            android:id="@+id/btnSaveCrosshair"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Simpan" />
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Draw the crosshair / stats bubble over other apps -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Keep the overlay service alive while a game is running -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- Needed to change the system color-matrix (vivid / ocean / etc. presets).
+         Not granted automatically — see README for how to grant it on a
+         rooted device, or via `adb shell pm grant` on a dev machine. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Game detection without root/Shizuku (falls back to privileged shell if not granted) -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Brightness control -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Voice Changer's in-app record+preview -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Screenshot via MediaProjection -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <!-- Reading/writing saved screenshots on pre-scoped-storage Android versions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.GameSpace">
+
+        <activity
+            android:name=".GameListActivity"
+            android:exported="true"
+            android:theme="@style/Theme.GameSpace">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".GameCustomizeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".TouchTestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".AccessManagerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".DeviceInfoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".RuntimeCompilerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".DisplayControllerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".CrosshairEditorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".VoiceChangerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".ScreenshotActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service
+            android:name=".ScreenshotService"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false" />
+
+        <service
+            android:name=".GameMonitorService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="automatic game detection for profile apply/revert" />
+        </service>
+
+        <receiver
+            android:name=".ResolutionBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".ResolutionRevertReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.gamespace.app.ACTION_REVERT_RESOLUTION" />
+            </intent-filter>
+        </receiver>
+
+        <!-- No longer the launcher — now the "Izin" (permissions) screen,
+             opened from the home screen's top-right button. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <!-- Lets Shizuku attach its binder to this app's process. Does
+             nothing unless the user has Shizuku installed and running. -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <service
+            android:name=".OverlayService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="in-game performance overlay" />
+        </service>
+
+    </application>
+
+</manifest>

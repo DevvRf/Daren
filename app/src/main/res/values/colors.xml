@@ -1,0 +1,9 @@
+<resources>
+    <color name="bg_dark">#0E0F13</color>
+    <color name="surface">#1A1C22</color>
+    <color name="accent">#5CF2C0</color>
+    <color name="text_primary">#F2F3F5</color>
+    <color name="text_secondary">#9A9EA8</color>
+    <color name="crosshair_default">#FF4444</color>
+    <color name="overlay_bg">#99000000</color>
+</resources>

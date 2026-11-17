@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Runtime Compiler (ART)"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:text="Mengatur filter kompilasi ART (pm compile) untuk app yang SUDAH terinstall. Bukan compiler source code game, tidak memodifikasi APK, tidak menjamin kenaikan FPS otomatis — hanya memengaruhi cold-start/JIT warm-up." />
+
+        <EditText
+            android:id="@+id/edtTargetPackage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Package target (mis. com.mobile.legends)"
+            android:textColor="@color/text_primary" />
+
+        <RadioGroup
+            android:id="@+id/modeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp">
+
+            <RadioButton android:id="@+id/radioVerify" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Verify (default, aman)" android:textColor="@color/text_primary" android:checked="true" />
+            <RadioButton android:id="@+id/radioSpeed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Speed (full AOT)" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioSpeedProfile" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Speed Profile" android:textColor="@color/text_primary" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnCheckStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Cek status kompilasi saat ini" />
+
+        <Button
+            android:id="@+id/btnCompile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Jalankan kompilasi (perlu konfirmasi)" />
+
+        <TextView
+            android:id="@+id/txtCompileOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:fontFamily="monospace" />
+
+    </LinearLayout>
+</ScrollView>

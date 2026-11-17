@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/txtGameTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"
+            tools:text="Mobile Legends: Bang Bang" />
+
+        <!-- Crosshair -->
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchCrosshair"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_crosshair"
+            android:textColor="@color/text_primary" />
+
+        <Button
+            android:id="@+id/btnEditCrosshair"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Edit crosshair (bentuk/warna/ukuran)" />
+
+        <!-- Color preset -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_color"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="24dp" />
+
+        <RadioGroup
+            android:id="@+id/colorGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton android:id="@+id/radioColorOff" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Off" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioColorVivid" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vivid" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioColorOcean" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ocean" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioColorWarm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Warm" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioColorGrayscale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Grayscale" android:textColor="@color/text_primary" />
+        </RadioGroup>
+
+        <!-- Renderer -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rendering backend"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="24dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:text="Perlu Shizuku/root. Berlaku penuh setelah game di-restart." />
+
+        <RadioGroup
+            android:id="@+id/rendererGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton android:id="@+id/radioRendererDefault" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Default" android:textColor="@color/text_primary" android:checked="true" />
+            <RadioButton android:id="@+id/radioRendererSkiaGl" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SkiaGL" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioRendererSkiaVk" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SkiaVK (Vulkan)" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioRendererVulkan" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vulkan" android:textColor="@color/text_primary" />
+            <RadioButton android:id="@+id/radioRendererGles" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OpenGL ES" android:textColor="@color/text_primary" />
+        </RadioGroup>
+
+        <!-- Downscale -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_downscale"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/txtDownscaleValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            tools:text="100% (native resolution)" />
+
+        <SeekBar
+            android:id="@+id/seekDownscale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="50"
+            android:progress="50" />
+
+        <!-- Monitor -->
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/label_stats"
+            android:textColor="@color/text_primary" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <CheckBox android:id="@+id/chkFps" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="FPS" android:textColor="@color/text_secondary" android:checked="true" />
+            <CheckBox android:id="@+id/chkCpu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CPU" android:textColor="@color/text_secondary" android:checked="true" />
+            <CheckBox android:id="@+id/chkRam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="RAM" android:textColor="@color/text_secondary" android:checked="true" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox android:id="@+id/chkGpu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="GPU" android:textColor="@color/text_secondary" android:checked="true" />
+            <CheckBox android:id="@+id/chkTemp" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Suhu" android:textColor="@color/text_secondary" android:checked="true" />
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Auto apply -->
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchAutoApply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Auto-apply saat game ini dibuka (tanpa tekan Start)"
+            android:textColor="@color/text_primary" />
+
+        <Button
+            android:id="@+id/btnStartStop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="@string/btn_start_overlay" />
+
+        <Button
+            android:id="@+id/btnLaunchGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/btn_launch_game" />
+
+        <Button
+            android:id="@+id/btnDeleteGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/btn_delete_game" />
+
+    </LinearLayout>
+</ScrollView>

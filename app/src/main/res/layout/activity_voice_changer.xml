@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voice Changer (preview only)"
+        android:textColor="@color/text_primary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:text="Ini merekam suara kamu sendiri lalu memutar ulang dengan efek. Android tidak mengizinkan app biasa mengganti input mic app lain (misal voice chat game) secara universal — jadi ini bukan voice changer lintas-aplikasi." />
+
+    <RadioGroup
+        android:id="@+id/effectGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp">
+
+        <RadioButton android:id="@+id/radioPitchUp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pitch Up" android:textColor="@color/text_primary" android:checked="true" />
+        <RadioButton android:id="@+id/radioPitchDown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pitch Down" android:textColor="@color/text_primary" />
+        <RadioButton android:id="@+id/radioRobot" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Robot" android:textColor="@color/text_primary" />
+        <RadioButton android:id="@+id/radioDeep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deep Voice" android:textColor="@color/text_primary" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/txtVoiceStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/text_secondary"
+        android:text="Tekan Rekam untuk mulai (3 detik)." />
+
+    <Button
+        android:id="@+id/btnRecord"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Rekam (3 detik)" />
+
+    <Button
+        android:id="@+id/btnPlayWithEffect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Putar dengan efek" />
+
+</LinearLayout>

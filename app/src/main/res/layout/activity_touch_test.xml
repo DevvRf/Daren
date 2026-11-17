@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Game Lab — Touch Test"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.gamespace.app.ScoreRingView
+            android:id="@+id/scoreRing"
+            android:layout_width="64dp"
+            android:layout_height="64dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        android:text="Touch anywhere below with 1 or more fingers. Test runs 8 seconds." />
+
+    <com.gamespace.app.TouchTestView
+        android:id="@+id/touchTestView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/surface" />
+
+    <Button
+        android:id="@+id/btnStartTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Start test" />
+
+</LinearLayout>

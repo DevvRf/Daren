@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Display Controller"
+        android:textColor="@color/text_primary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtCurrentRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/text_secondary"
+        tools:text="Refresh rate saat ini: 60.0 Hz"
+        xmlns:tools="http://schemas.android.com/tools" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Pilih refresh rate (didukung layar ini):"
+        android:textColor="@color/text_secondary" />
+
+    <RadioGroup
+        android:id="@+id/rateGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:text="Ini mengubah refresh rate SISTEM (berlaku untuk game apapun yang dibuka setelahnya), bukan cuma app ini — perlu Shizuku/root." />
+
+    <Button
+        android:id="@+id/btnApplyRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Terapkan" />
+
+    <Button
+        android:id="@+id/btnResetRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Reset ke default" />
+
+</LinearLayout>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">GS Renji</string>
+    <string name="btn_grant_overlay">Allow overlay</string>
+    <string name="btn_grant_settings">Allow color presets (adb/root)</string>
+    <string name="btn_grant_shizuku">Enable Shizuku (no root needed)</string>
+    <string name="btn_start_overlay">Start in-game overlay</string>
+    <string name="btn_stop_overlay">Stop overlay</string>
+    <string name="label_crosshair">Crosshair</string>
+    <string name="label_stats">Performance stats</string>
+    <string name="label_color">Graphic preset</string>
+    <string name="notif_channel_name">Game Space overlay</string>
+    <string name="notif_running">Game Space overlay is active</string>
+
+    <string name="label_pick_game">Pilih game</string>
+    <string name="btn_add_game">+ Tambah game</string>
+    <string name="btn_permissions">Izin</string>
+    <string name="btn_game_lab">Game Lab</string>
+    <string name="label_downscale">Downscale resolusi</string>
+    <string name="note_downscale">Menurunkan resolusi render sistem (via wm size) untuk mengejar FPS. Butuh Shizuku atau root. Kembali ke 100% untuk reset ke resolusi asli.</string>
+    <string name="btn_launch_game">Buka game ini</string>
+    <string name="btn_delete_game">Hapus game ini</string>
+    <string name="dialog_add_game_title">Tambah game</string>
+    <string name="hint_game_name">Nama game</string>
+    <string name="hint_package_name">Package name (opsional)</string>
+</resources>
