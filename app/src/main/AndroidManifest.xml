@@ -45,14 +45,29 @@
         android:theme="@style/Theme.GameSpace">
 
         <activity
-            android:name=".GameListActivity"
+            android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.GameSpace">
+            android:theme="@style/Theme.GameSpace.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".GameListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".PermissionGateActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".CrosshairPositionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
 
         <activity
             android:name=".GameCustomizeActivity"

@@ -19,9 +19,8 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="20dp"
-            tools:text="Mobile Legends: Bang Bang" />
+            tools:text="Mobile Legends" />
 
-        <!-- Crosshair -->
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchCrosshair"
             android:layout_width="wrap_content"
@@ -36,7 +35,13 @@
             android:layout_marginTop="6dp"
             android:text="Edit crosshair (bentuk/warna/ukuran)" />
 
-        <!-- Color preset -->
+        <Button
+            android:id="@+id/btnEditPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Atur Posisi Crosshair (drag di layar)" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +62,7 @@
             <RadioButton android:id="@+id/radioColorGrayscale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Grayscale" android:textColor="@color/text_primary" />
         </RadioGroup>
 
-        <!-- Renderer -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,7 +89,6 @@
             <RadioButton android:id="@+id/radioRendererGles" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OpenGL ES" android:textColor="@color/text_primary" />
         </RadioGroup>
 
-        <!-- Downscale -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -98,7 +102,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
-            tools:text="100% (native resolution)" />
+            tools:text="100%" />
 
         <SeekBar
             android:id="@+id/seekDownscale"
@@ -107,7 +111,6 @@
             android:max="50"
             android:progress="50" />
 
-        <!-- Monitor -->
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchStats"
             android:layout_width="wrap_content"
@@ -136,13 +139,12 @@
             <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
         </LinearLayout>
 
-        <!-- Auto apply -->
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchAutoApply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Auto-apply saat game ini dibuka (tanpa tekan Start)"
+            android:text="Auto-apply saat game dibuka"
             android:textColor="@color/text_primary" />
 
         <Button

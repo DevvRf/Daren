@@ -63,6 +63,7 @@ class GameCustomizeActivity : AppCompatActivity() {
         seekDownscale = findViewById(R.id.seekDownscale)
         txtDownscaleValue = findViewById(R.id.txtDownscaleValue)
         btnStartStop = findViewById(R.id.btnStartStop)
+        btnStartStop.text = "Preview (manual, di luar game)"
 
         restoreSelections()
 
@@ -71,12 +72,11 @@ class GameCustomizeActivity : AppCompatActivity() {
         rendererGroup.setOnCheckedChangeListener { _, _ -> persistAndMaybeApply() }
         switchAutoApply.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked && profile.packageName == null) {
-                Toast.makeText(this, "Auto-apply butuh package name. Isi dulu lewat Tambah game.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Auto-apply butuh package name.", Toast.LENGTH_LONG).show()
                 switchAutoApply.isChecked = false
                 return@setOnCheckedChangeListener
             }
             persistAndMaybeApply()
-            if (isChecked) ensureMonitorServiceRunning()
         }
         for (chk in listOf(chkFps, chkCpu, chkRam, chkGpu, chkTemp)) {
             chk.setOnCheckedChangeListener { _, _ -> persistAndMaybeApply() }
@@ -93,7 +93,7 @@ class GameCustomizeActivity : AppCompatActivity() {
         seekDownscale.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val percent = 50 + progress
-                txtDownscaleValue.text = if (percent >= 100) "100% (resolusi asli)" else "$percent%"
+                txtDownscaleValue.text = if (percent >= 100) "100%" else "$percent%"
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) { persistAndMaybeApply() }
@@ -103,6 +103,16 @@ class GameCustomizeActivity : AppCompatActivity() {
             val i = Intent(this, CrosshairEditorActivity::class.java)
             i.putExtra(CrosshairEditorActivity.EXTRA_STYLE_JSON_IN, profile.crosshairStyle.toJson().toString())
             startActivityForResult(i, REQ_EDIT_CROSSHAIR)
+        }
+
+        findViewById<Button>(R.id.btnEditPosition).setOnClickListener {
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Izinkan overlay dulu", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val i = Intent(this, CrosshairPositionActivity::class.java)
+            i.putExtra(CrosshairPositionActivity.EXTRA_GAME_ID, profile.id)
+            startActivity(i)
         }
 
         findViewById<Button>(R.id.btnLaunchGame).setOnClickListener { launchGame() }
@@ -120,11 +130,17 @@ class GameCustomizeActivity : AppCompatActivity() {
             val json = data?.getStringExtra(CrosshairEditorActivity.EXTRA_STYLE_JSON_OUT)
             if (json != null) {
                 val style = try { CrosshairStyle.fromJson(org.json.JSONObject(json)) } catch (e: Exception) { CrosshairStyle() }
-                profile = profile.copy(crosshairStyle = style)
+                val merged = style.copy(offsetXDp = profile.crosshairStyle.offsetXDp, offsetYDp = profile.crosshairStyle.offsetYDp)
+                profile = profile.copy(crosshairStyle = merged)
                 store.upsert(profile)
                 if (overlayRunning && profile.crosshairEnabled) applyToRunningOverlay()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        profile = store.loadAll().firstOrNull { it.id == profile.id } ?: profile
     }
 
     private fun currentDownscalePercent(): Int = 50 + seekDownscale.progress
@@ -156,7 +172,7 @@ class GameCustomizeActivity : AppCompatActivity() {
         rendererGroup.check(rendererRadioId)
 
         seekDownscale.progress = (profile.downscalePercent - 50).coerceIn(0, 50)
-        txtDownscaleValue.text = if (profile.downscalePercent >= 100) "100% (resolusi asli)" else "${profile.downscalePercent}%"
+        txtDownscaleValue.text = if (profile.downscalePercent >= 100) "100%" else "${profile.downscalePercent}%"
 
         chkFps.isChecked = profile.monitorMetrics.fps
         chkCpu.isChecked = profile.monitorMetrics.cpu
@@ -202,7 +218,7 @@ class GameCustomizeActivity : AppCompatActivity() {
 
     private fun toggleOverlay() {
         if (!Settings.canDrawOverlays(this)) {
-            Toast.makeText(this, "Izinkan overlay dulu di layar Izin", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Izinkan overlay dulu", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -210,7 +226,7 @@ class GameCustomizeActivity : AppCompatActivity() {
             val intent = Intent(this, OverlayService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent) else startService(intent)
             overlayRunning = true
-            btnStartStop.text = getString(R.string.btn_stop_overlay)
+            btnStartStop.text = "Stop preview"
             applyToRunningOverlay()
             if (switchStats.isChecked) {
                 startService(Intent(this, OverlayService::class.java).apply {
@@ -222,24 +238,19 @@ class GameCustomizeActivity : AppCompatActivity() {
             GameSessionManager.revertAll(this)
             stopService(Intent(this, OverlayService::class.java))
             overlayRunning = false
-            btnStartStop.text = getString(R.string.btn_start_overlay)
+            btnStartStop.text = "Preview (manual, di luar game)"
         }
-    }
-
-    private fun ensureMonitorServiceRunning() {
-        val intent = Intent(this, GameMonitorService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent) else startService(intent)
     }
 
     private fun launchGame() {
         val pkg = profile.packageName
         if (pkg == null) {
-            Toast.makeText(this, "Game ini belum punya package name tersimpan", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Game ini belum punya package name", Toast.LENGTH_SHORT).show()
             return
         }
         val launchIntent = packageManager.getLaunchIntentForPackage(pkg)
         if (launchIntent == null) {
-            Toast.makeText(this, "$pkg belum terinstall di perangkat ini", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "$pkg belum terinstall", Toast.LENGTH_SHORT).show()
             return
         }
         startActivity(launchIntent)

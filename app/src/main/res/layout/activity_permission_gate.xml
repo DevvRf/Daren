@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Izin Diperlukan"
+            android:textColor="@color/accent"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:text="GS Renji butuh semua izin di bawah ini. Berikan satu-satu, lalu kembali ke sini." />
+
+        <LinearLayout android:id="@+id/itemOverlay" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="14dp" android:layout_marginTop="16dp">
+            <TextView android:id="@+id/txtOverlayStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:text="Overlay - belum" />
+            <Button android:id="@+id/btnOverlay" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Izinkan Overlay" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/itemShizuku" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="14dp" android:layout_marginTop="10dp">
+            <TextView android:id="@+id/txtShizukuStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:text="Shizuku - belum" />
+            <Button android:id="@+id/btnShizuku" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Aktifkan Shizuku" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/itemUsage" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="14dp" android:layout_marginTop="10dp">
+            <TextView android:id="@+id/txtUsageStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:text="Usage Access - belum" />
+            <Button android:id="@+id/btnUsage" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Izinkan Usage Access" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/itemDnd" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="14dp" android:layout_marginTop="10dp">
+            <TextView android:id="@+id/txtDndStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:text="DND - belum" />
+            <Button android:id="@+id/btnDnd" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Izinkan DND" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/itemWriteSettings" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="14dp" android:layout_marginTop="10dp">
+            <TextView android:id="@+id/txtWriteSettingsStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:text="Brightness - belum" />
+            <Button android:id="@+id/btnWriteSettings" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Izinkan WRITE_SETTINGS" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/itemMic" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="14dp" android:layout_marginTop="10dp">
+            <TextView android:id="@+id/txtMicStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:text="Mikrofon - belum" />
+            <Button android:id="@+id/btnMic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Izinkan Mikrofon" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:enabled="false"
+            android:text="Lanjutkan ke GS Renji" />
+
+    </LinearLayout>
+</ScrollView>

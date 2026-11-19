@@ -1,10 +1,13 @@
 package com.gamespace.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,7 +27,7 @@ class GameListActivity : AppCompatActivity() {
 
         val recycler = findViewById<RecyclerView>(R.id.recyclerGames)
         recycler.layoutManager = LinearLayoutManager(this)
-        adapter = GameListAdapter(store.loadAll()) { profile ->
+        adapter = GameListAdapter(store.loadAll(), packageManager) { profile ->
             val intent = Intent(this, GameCustomizeActivity::class.java)
             intent.putExtra(GameCustomizeActivity.EXTRA_GAME_ID, profile.id)
             startActivity(intent)
@@ -52,11 +55,18 @@ class GameListActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAddGame).setOnClickListener {
             showAddGameDialog()
         }
+
+        ensureMonitorServiceRunning()
     }
 
     override fun onResume() {
         super.onResume()
         adapter.submitList(store.loadAll())
+    }
+
+    private fun ensureMonitorServiceRunning() {
+        val intent = Intent(this, GameMonitorService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent) else startService(intent)
     }
 
     private fun showAddGameDialog() {
@@ -65,7 +75,7 @@ class GameListActivity : AppCompatActivity() {
             setPadding(48, 24, 48, 0)
         }
         val nameInput = EditText(this).apply { hint = getString(R.string.hint_game_name) }
-        val pkgInput = EditText(this).apply { hint = getString(R.string.hint_package_name) }
+        val pkgInput = EditText(this).apply { hint = "Package name (wajib)" }
         container.addView(nameInput)
         container.addView(pkgInput)
 
@@ -74,8 +84,29 @@ class GameListActivity : AppCompatActivity() {
             .setView(container)
             .setPositiveButton("Tambah") { _, _ ->
                 val name = nameInput.text.toString().trim()
-                if (name.isEmpty()) return@setPositiveButton
-                val pkg = pkgInput.text.toString().trim().ifEmpty { null }
+                val pkg = pkgInput.text.toString().trim()
+
+                if (name.isEmpty() || pkg.isEmpty()) {
+                    Toast.makeText(this, "Nama dan package name wajib diisi", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val installedAppLabel = try {
+                    val appInfo = packageManager.getApplicationInfo(pkg, 0)
+                    packageManager.getApplicationLabel(appInfo).toString()
+                } catch (e: PackageManager.NameNotFoundException) {
+                    null
+                }
+
+                if (installedAppLabel == null) {
+                    Toast.makeText(
+                        this,
+                        "Package '$pkg' tidak ditemukan. Pastikan nama benar dan app sudah terinstall.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@setPositiveButton
+                }
+
                 val profile = GameProfile(
                     id = UUID.randomUUID().toString(),
                     displayName = name,
@@ -83,6 +114,7 @@ class GameListActivity : AppCompatActivity() {
                 )
                 store.upsert(profile)
                 adapter.submitList(store.loadAll())
+                Toast.makeText(this, "Ditambahkan: $installedAppLabel terdeteksi", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Batal", null)
             .show()

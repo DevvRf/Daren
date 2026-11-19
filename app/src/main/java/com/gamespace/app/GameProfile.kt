@@ -3,22 +3,17 @@ package com.gamespace.app
 import org.json.JSONArray
 import org.json.JSONObject
 
-/**
- * One game's saved customization: crosshair (full style, not just a
- * preset key), color preset, downscale, renderer backend, and whether
- * GameMonitorService should apply/revert this automatically.
- */
 data class GameProfile(
     val id: String,
     val displayName: String,
-    val packageName: String?, // null for a custom/manual entry with no known package
+    val packageName: String?,
     val crosshairEnabled: Boolean = false,
     val crosshairStyle: CrosshairStyle = CrosshairStyle(),
-    val colorPreset: String = "off",    // matches ColorFilterManager.PRESETS keys
-    val downscalePercent: Int = 100,    // 50-100, 100 = native resolution
-    val rendererKey: String = "",       // matches RenderingManager.Renderer.propValue ("" = default)
+    val colorPreset: String = "off",
+    val downscalePercent: Int = 100,
+    val rendererKey: String = "",
     val monitorMetrics: MonitorMetrics = MonitorMetrics(),
-    val autoApply: Boolean = false      // if true, GameMonitorService applies/reverts this automatically
+    val autoApply: Boolean = true
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id)
@@ -62,22 +57,13 @@ data class GameProfile(
                 downscalePercent = obj.optInt("downscalePercent", 100),
                 rendererKey = obj.optString("rendererKey", ""),
                 monitorMetrics = metrics,
-                autoApply = obj.optBoolean("autoApply", false)
+                autoApply = obj.optBoolean("autoApply", true)
             )
         }
 
-        /** A couple of popular games pre-filled so the home screen isn't empty on first run. */
         fun defaultProfiles(): List<GameProfile> = listOf(
-            GameProfile(
-                id = "ml",
-                displayName = "Mobile Legends: Bang Bang",
-                packageName = "com.mobile.legends"
-            ),
-            GameProfile(
-                id = "ff",
-                displayName = "Free Fire",
-                packageName = "com.dts.freefireth"
-            )
+            GameProfile(id = "ml", displayName = "Mobile Legends: Bang Bang", packageName = "com.mobile.legends"),
+            GameProfile(id = "ff", displayName = "Free Fire", packageName = "com.dts.freefireth")
         )
     }
 }
