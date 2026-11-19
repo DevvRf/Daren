@@ -6,43 +6,45 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.WindowManager
 
-/**
- * A small always-on-top CrosshairDrawView, centered by default and
- * draggable. Renders whatever CrosshairStyle it's given (shape, color,
- * size, thickness, opacity) dynamically — not a fixed set of preset
- * images, so the editor's sliders/colors actually take effect.
- */
 class CrosshairOverlayView(private val context: Context) {
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var view: CrosshairDrawView? = null
     private var params: WindowManager.LayoutParams? = null
+    private var onDragEnd: ((offsetXDp: Int, offsetYDp: Int) -> Unit)? = null
 
-    fun show(style: CrosshairStyle) {
-        hide() // avoid duplicate views if already shown
+    fun show(style: CrosshairStyle, editable: Boolean = false, onDragEnd: ((Int, Int) -> Unit)? = null) {
+        hide()
+        this.onDragEnd = onDragEnd
 
         val density = context.resources.displayMetrics.density
-        // Give the view some margin beyond the crosshair's own size so
-        // thick/large styles aren't clipped.
         val sizePx = ((style.sizeDp + 24) * density).toInt()
 
         val drawView = CrosshairDrawView(context).apply {
             this.style = style
         }
 
+        val touchFlag = if (editable) {
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+        } else {
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        }
+
         val layoutParams = WindowManager.LayoutParams(
             sizePx,
             sizePx,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            touchFlag or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.CENTER
+            x = (style.offsetXDp * density).toInt()
+            y = (style.offsetYDp * density).toInt()
         }
 
-        attachDragHandling(drawView, layoutParams)
+        if (editable) {
+            attachDragHandling(drawView, layoutParams, density)
+        }
 
         windowManager.addView(drawView, layoutParams)
         view = drawView
@@ -60,14 +62,13 @@ class CrosshairOverlayView(private val context: Context) {
             try {
                 windowManager.removeView(it)
             } catch (e: IllegalArgumentException) {
-                // already removed
             }
         }
         view = null
         params = null
     }
 
-    private fun attachDragHandling(target: CrosshairDrawView, layoutParams: WindowManager.LayoutParams) {
+    private fun attachDragHandling(target: CrosshairDrawView, layoutParams: WindowManager.LayoutParams, density: Float) {
         var initialX = 0
         var initialY = 0
         var touchX = 0f
@@ -86,6 +87,12 @@ class CrosshairOverlayView(private val context: Context) {
                     layoutParams.x = initialX + (event.rawX - touchX).toInt()
                     layoutParams.y = initialY + (event.rawY - touchY).toInt()
                     windowManager.updateViewLayout(v, layoutParams)
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    val offsetXDp = (layoutParams.x / density).toInt()
+                    val offsetYDp = (layoutParams.y / density).toInt()
+                    onDragEnd?.invoke(offsetXDp, offsetYDp)
                     true
                 }
                 else -> false
