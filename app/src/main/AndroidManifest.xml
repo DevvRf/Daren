@@ -96,6 +96,16 @@
             android:theme="@style/Theme.GameSpace" />
 
         <activity
+            android:name=".RunDashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
+            android:name=".RamCleanerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSpace" />
+
+        <activity
             android:name=".DisplayControllerActivity"
             android:exported="false"
             android:theme="@style/Theme.GameSpace" />

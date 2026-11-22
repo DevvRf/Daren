@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/txtGameName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:text="Free Fire" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:background="@color/surface"
+        android:padding="14dp">
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textColor="@color/text_secondary" android:textSize="11sp" />
+            <TextView android:id="@+id/txtCpu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/accent" android:textSize="16sp" tools:text="12%" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Suhu" android:textColor="@color/text_secondary" android:textSize="11sp" />
+            <TextView android:id="@+id/txtTemp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/accent" android:textSize="16sp" tools:text="39.3°C" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ping" android:textColor="@color/text_secondary" android:textSize="11sp" />
+            <TextView android:id="@+id/txtPing" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/accent" android:textSize="16sp" tools:text="31 ms" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnGameSuite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Game Suite (pengaturan)" />
+
+    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/btnHoldToPlay"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="TAHAN UNTUK MAIN" />
+
+    <TextView
+        android:id="@+id/txtHoldProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:text="" />
+
+</LinearLayout>
