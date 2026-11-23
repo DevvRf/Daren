@@ -1,11 +1,9 @@
 package com.gamespace.app
 
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -14,29 +12,24 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.tabs.TabLayout
 import java.util.UUID
 
 class GameListActivity : AppCompatActivity() {
 
     private lateinit var store: GameProfileStore
     private lateinit var adapter: GameListAdapter
-    private lateinit var libraryContainer: View
-    private lateinit var gameSpaceContainer: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game_list)
 
         store = GameProfileStore(this)
-        libraryContainer = findViewById(R.id.libraryContainer)
-        gameSpaceContainer = findViewById(R.id.gameSpaceContainer)
 
         val recycler = findViewById<RecyclerView>(R.id.recyclerGames)
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = GameListAdapter(store.loadAll(), packageManager) { profile ->
-            val intent = Intent(this, GameCustomizeActivity::class.java)
-            intent.putExtra(GameCustomizeActivity.EXTRA_GAME_ID, profile.id)
+            val intent = Intent(this, RunDashboardActivity::class.java)
+            intent.putExtra(RunDashboardActivity.EXTRA_GAME_ID, profile.id)
             startActivity(intent)
         }
         recycler.adapter = adapter
@@ -56,40 +49,14 @@ class GameListActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnDisplayController).setOnClickListener {
             startActivity(Intent(this, DisplayControllerActivity::class.java))
         }
-        findViewById<Button>(R.id.btnAccessManager2).setOnClickListener {
-            startActivity(Intent(this, AccessManagerActivity::class.java))
+        findViewById<Button>(R.id.btnRamCleaner).setOnClickListener {
+            startActivity(Intent(this, RamCleanerActivity::class.java))
         }
         findViewById<Button>(R.id.btnAddGame).setOnClickListener {
             showAddGameDialog()
         }
 
-        val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                if (tab.position == 0) {
-                    showLibraryTab()
-                } else {
-                    showGameSpaceTab()
-                }
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
-        })
-
-        showLibraryTab()
         ensureMonitorServiceRunning()
-    }
-
-    private fun showLibraryTab() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        libraryContainer.visibility = View.VISIBLE
-        gameSpaceContainer.visibility = View.GONE
-    }
-
-    private fun showGameSpaceTab() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        libraryContainer.visibility = View.GONE
-        gameSpaceContainer.visibility = View.VISIBLE
     }
 
     override fun onResume() {
@@ -134,7 +101,7 @@ class GameListActivity : AppCompatActivity() {
                 if (installedAppLabel == null) {
                     Toast.makeText(
                         this,
-                        "Package '$pkg' tidak ditemukan. Pastikan nama benar dan app sudah terinstall.",
+                        "Aplikasi tidak tersedia — package '$pkg' tidak ditemukan di perangkat ini.",
                         Toast.LENGTH_LONG
                     ).show()
                     return@setPositiveButton
