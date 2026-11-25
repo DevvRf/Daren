@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GS Renji</string>
+    <string name="app_name">Game Suite</string>
     <string name="btn_grant_overlay">Allow overlay</string>
     <string name="btn_grant_settings">Allow color presets (adb/root)</string>
     <string name="btn_grant_shizuku">Enable Shizuku (no root needed)</string>

@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="800dp"
+    android:viewportWidth="400"
+    android:viewportHeight="800">
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="2" android:pathData="M-20,60 L60,-20" />
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="2" android:pathData="M-20,110 L110,-20" />
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="2" android:pathData="M330,40 L400,-30" />
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="2" android:pathData="M300,70 L400,-30" />
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="1.5" android:pathData="M250,700 L330,620" />
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="1.5" android:pathData="M280,740 L370,650" />
+    <path android:strokeColor="@color/accent_dim" android:strokeWidth="1.5" android:pathData="M20,780 L90,710" />
+</vector>
