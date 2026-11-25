@@ -1,24 +1,27 @@
 package com.gamespace.app
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.os.BatteryManager
+import android.os.Build
+import android.provider.Settings
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
-/**
- * Floating "GSR" bubble. Tap expands a full quick-panel: Crosshair/Stats
- * toggles, a real DND toggle, real Brightness/Volume sliders, and buttons
- * to launch Screenshot and Voice Changer. Every control here calls the
- * same real managers used elsewhere in the app — nothing here is a
- * decorative/non-functional button.
- */
+/** Futuristic Game Suite floating HUD. Existing callbacks/managers are preserved. */
 class FloatingControlBubble(
     private val context: Context,
     private val isCrosshairOn: () -> Boolean,
@@ -27,207 +30,330 @@ class FloatingControlBubble(
     private val onToggleStats: () -> Unit
 ) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val prefs = context.getSharedPreferences("floating_hud", Context.MODE_PRIVATE)
     private var rootView: LinearLayout? = null
     private var params: WindowManager.LayoutParams? = null
     private var expanded = false
-
-    private lateinit var bubbleLabel: TextView
-    private lateinit var panelContainer: LinearLayout
+    private var keepAwake = false
+    private lateinit var handle: TextView
+    private lateinit var panel: LinearLayout
     private lateinit var crosshairToggle: TextView
     private lateinit var statsToggle: TextView
     private lateinit var dndToggle: TextView
+    private lateinit var monitorText: TextView
+    private lateinit var keepAwakeToggle: TextView
+
+    private val red = Color.rgb(255, 23, 79)
+    private val muted = Color.rgb(158, 158, 170)
+    private val white = Color.WHITE
+    private val panelBg = Color.argb(246, 17, 17, 25)
 
     fun show() {
         if (rootView != null) return
         val density = context.resources.displayMetrics.density
-
         val outer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#CC1A1C22"))
+            background = shape(panelBg, red, 1.2f, 18f)
+            clipToOutline = true
+            elevation = dp(12).toFloat()
         }
-
-        bubbleLabel = TextView(context).apply {
-            text = "GSR"
-            setTextColor(Color.WHITE)
-            textSize = 13f
-            setPadding((14 * density).toInt(), (10 * density).toInt(), (14 * density).toInt(), (10 * density).toInt())
+        handle = TextView(context).apply {
+            text = "GS  ❯❯"
+            setTextColor(white)
+            textSize = 14f
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD_ITALIC)
+            letterSpacing = .08f
+            setPadding(dp(15), dp(11), dp(15), dp(11))
+            background = shape(Color.argb(235, 24, 12, 22), red, 1f, 18f)
         }
-
-        panelContainer = LinearLayout(context).apply {
+        panel = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            visibility = android.view.View.GONE
-            setPadding((10 * density).toInt(), (4 * density).toInt(), (10 * density).toInt(), (10 * density).toInt())
+            visibility = View.GONE
+            setPadding(dp(10), dp(8), dp(10), dp(10))
         }
 
-        crosshairToggle = rowButton { onToggleCrosshair(); refreshToggleLabels() }
-        statsToggle = rowButton { onToggleStats(); refreshToggleLabels() }
-        dndToggle = rowButton {
+        buildExpandedPanel()
+        outer.addView(handle)
+        outer.addView(panel)
+        rootView = outer
+
+        val savedX = prefs.getInt("x", dp(12))
+        val savedY = prefs.getInt("y", dp(100))
+        val lp = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = savedX
+            y = savedY
+        }
+        params = lp
+        attachDragAndTapHandling(handle, outer, lp)
+        windowManager.addView(outer, lp)
+        refreshToggleLabels()
+        refreshMonitor()
+    }
+
+    private fun buildExpandedPanel() {
+        val title = TextView(context).apply {
+            text = "G A M E   S U I T E     /     CONTROL CENTER"
+            setTextColor(red)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            letterSpacing = .08f
+            setPadding(dp(3), dp(2), dp(3), dp(7))
+        }
+        monitorText = TextView(context).apply {
+            text = "FPS  N/A   •   CPU  N/A   •   RAM  --"
+            setTextColor(white)
+            textSize = 11f
+            typeface = Typeface.MONOSPACE
+            setPadding(dp(10), dp(10), dp(10), dp(10))
+            background = shape(Color.rgb(28, 17, 27), red, .8f, 10f)
+        }
+        val monitorSub = TextView(context).apply {
+            text = "Refresh rate / Battery / Thermal source"
+            setTextColor(muted)
+            textSize = 9f
+            setPadding(dp(4), dp(5), dp(4), dp(8))
+        }
+        val columns = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.TOP
+        }
+        val left = cardColumn()
+        val right = cardColumn()
+
+        crosshairToggle = controlRow("◎", "Crosshair") { onToggleCrosshair(); refreshToggleLabels() }
+        statsToggle = controlRow("▥", "Stats Overlay") { onToggleStats(); refreshToggleLabels() }
+        dndToggle = controlRow("◉", "Do Not Disturb") {
             if (!DndController.isGranted(context)) {
-                android.widget.Toast.makeText(context, "Izinkan Notification Policy Access dulu (Access Manager)", android.widget.Toast.LENGTH_SHORT).show()
+                toast("Aktifkan Notification Policy Access melalui Access Manager")
             } else {
                 DndController.setDndOn(context, !DndController.isDndOn(context))
             }
             refreshToggleLabels()
         }
+        keepAwakeToggle = controlRow("☼", "Keep Screen Awake") {
+            keepAwake = !keepAwake
+            updateKeepAwakeFlag()
+            refreshToggleLabels()
+        }
+        left.addView(sectionLabel("QUICK CONTROLS"))
+        left.addView(brightnessRow())
+        left.addView(crosshairToggle)
+        left.addView(statsToggle)
+        left.addView(dndToggle)
+        left.addView(keepAwakeToggle)
 
-        panelContainer.addView(crosshairToggle)
-        panelContainer.addView(statsToggle)
-        panelContainer.addView(dndToggle)
-        panelContainer.addView(brightnessRow(density))
-        panelContainer.addView(volumeRow(density))
-        panelContainer.addView(actionButton("Screenshot") {
-            context.startActivity(Intent(context, ScreenshotActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            })
+        right.addView(sectionLabel("GAMING TOOLS"))
+        right.addView(volumeRow())
+        right.addView(toolButton("▣  Screenshot") {
+            launch(ScreenshotActivity::class.java)
         })
-        panelContainer.addView(actionButton("Voice Changer") {
-            context.startActivity(Intent(context, VoiceChangerActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            })
+        right.addView(toolButton("◉  Voice Changer") {
+            launch(VoiceChangerActivity::class.java)
         })
+        right.addView(toolButton("↗  Auto Brightness Settings") {
+            launchSettings(Settings.ACTION_DISPLAY_SETTINGS)
+        })
+        right.addView(toolButton("⌁  Refresh Monitor") { refreshMonitor() })
 
-        outer.addView(bubbleLabel)
-        outer.addView(panelContainer)
-        rootView = outer
-
-        val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = (16 * density).toInt()
-            y = (16 * density).toInt()
+        columns.addView(left, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(5) })
+        columns.addView(right, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(5) })
+        val close = TextView(context).apply {
+            text = "⌃   TAP TO COLLAPSE"
+            gravity = Gravity.CENTER
+            setTextColor(red)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(dp(8), dp(10), dp(8), dp(4))
+            setOnClickListener { setExpanded(false) }
         }
-        params = layoutParams
-
-        attachDragAndTapHandling(bubbleLabel, outer, layoutParams)
-        windowManager.addView(outer, layoutParams)
-        refreshToggleLabels()
+        panel.addView(title)
+        panel.addView(monitorText)
+        panel.addView(monitorSub)
+        panel.addView(columns)
+        panel.addView(close)
     }
 
-    private fun rowButton(onClick: () -> Unit): TextView {
-        val density = context.resources.displayMetrics.density
-        return TextView(context).apply {
-            setTextColor(Color.WHITE)
-            textSize = 13f
-            setPadding((12 * density).toInt(), (8 * density).toInt(), (12 * density).toInt(), (8 * density).toInt())
-            setOnClickListener { onClick() }
-        }
+    private fun cardColumn() = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(7), dp(7), dp(7), dp(7))
+        background = shape(Color.argb(210, 27, 27, 37), Color.argb(150, 255, 23, 79), .6f, 12f)
     }
 
-    private fun actionButton(label: String, onClick: () -> Unit): TextView {
-        return rowButton(onClick).apply { text = label }
+    private fun sectionLabel(label: String) = TextView(context).apply {
+        text = label
+        setTextColor(red)
+        textSize = 9f
+        typeface = Typeface.DEFAULT_BOLD
+        setPadding(dp(3), dp(2), dp(3), dp(7))
     }
 
-    private fun brightnessRow(density: Float): LinearLayout {
-        val row = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-        val label = TextView(context).apply {
-            text = "Brightness"
-            setTextColor(Color.WHITE)
-            textSize = 11f
-        }
+    private fun controlRow(icon: String, label: String, action: () -> Unit) = TextView(context).apply {
+        text = "$icon  $label: OFF"
+        setTextColor(white)
+        textSize = 10f
+        setPadding(dp(5), dp(9), dp(3), dp(9))
+        setOnClickListener { action() }
+    }
+
+    private fun toolButton(label: String, action: () -> Unit) = TextView(context).apply {
+        text = label
+        setTextColor(white)
+        textSize = 10f
+        setPadding(dp(7), dp(11), dp(5), dp(11))
+        background = shape(Color.rgb(35, 27, 37), Color.argb(90, 255, 23, 79), .5f, 8f)
+        setOnClickListener { action() }
+    }
+
+    private fun brightnessRow(): LinearLayout {
+        val box = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(4), dp(5), dp(4), dp(5)) }
+        val label = smallLabel("☀  BRIGHTNESS")
         val seek = SeekBar(context).apply {
             max = 255
             progress = BrightnessController.getCurrent(context) ?: 128
+            progressTintList = android.content.res.ColorStateList.valueOf(red)
+            thumbTintList = android.content.res.ColorStateList.valueOf(red)
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser) {
-                        if (!BrightnessController.setCurrent(context, progress)) {
-                            android.widget.Toast.makeText(context, "Izinkan WRITE_SETTINGS dulu", android.widget.Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                override fun onProgressChanged(sb: SeekBar?, value: Int, fromUser: Boolean) {
+                    if (fromUser && !BrightnessController.setCurrent(context, value)) toast("Izin WRITE_SETTINGS diperlukan")
                 }
                 override fun onStartTrackingTouch(sb: SeekBar?) {}
                 override fun onStopTrackingTouch(sb: SeekBar?) {}
             })
         }
-        row.addView(label)
-        row.addView(seek)
-        return row
+        box.addView(label); box.addView(seek)
+        return box
     }
 
-    private fun volumeRow(density: Float): LinearLayout {
-        val row = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-        val label = TextView(context).apply {
-            text = "Volume (Media)"
-            setTextColor(Color.WHITE)
-            textSize = 11f
-        }
+    private fun volumeRow(): LinearLayout {
+        val box = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(4), dp(5), dp(4), dp(5)) }
+        box.addView(smallLabel("♫  MEDIA VOLUME"))
         val seek = SeekBar(context).apply {
-            max = VolumeController.getMax(context, VolumeController.Stream.MEDIA)
-            progress = VolumeController.getCurrent(context, VolumeController.Stream.MEDIA)
+            max = VolumeController.getMax(context, VolumeController.Stream.MEDIA).coerceAtLeast(1)
+            progress = VolumeController.getCurrent(context, VolumeController.Stream.MEDIA).coerceIn(0, max)
+            progressTintList = android.content.res.ColorStateList.valueOf(red)
+            thumbTintList = android.content.res.ColorStateList.valueOf(red)
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser) VolumeController.setVolume(context, VolumeController.Stream.MEDIA, progress)
+                override fun onProgressChanged(sb: SeekBar?, value: Int, fromUser: Boolean) {
+                    if (fromUser) VolumeController.setVolume(context, VolumeController.Stream.MEDIA, value)
                 }
                 override fun onStartTrackingTouch(sb: SeekBar?) {}
                 override fun onStopTrackingTouch(sb: SeekBar?) {}
             })
         }
-        row.addView(label)
-        row.addView(seek)
-        return row
+        box.addView(seek)
+        return box
+    }
+
+    private fun smallLabel(value: String) = TextView(context).apply {
+        text = value; setTextColor(muted); textSize = 9f; typeface = Typeface.DEFAULT_BOLD
     }
 
     fun refreshToggleLabels() {
-        crosshairToggle.text = if (isCrosshairOn()) "Crosshair: ON" else "Crosshair: OFF"
-        statsToggle.text = if (isStatsOn()) "Stats: ON" else "Stats: OFF"
-        dndToggle.text = if (DndController.isDndOn(context)) "DND: ON" else "DND: OFF"
+        if (!::crosshairToggle.isInitialized) return
+        crosshairToggle.text = "◎  Crosshair: ${if (isCrosshairOn()) "ON" else "OFF"}"
+        statsToggle.text = "▥  Stats Overlay: ${if (isStatsOn()) "ON" else "OFF"}"
+        dndToggle.text = "◉  Do Not Disturb: ${if (DndController.isDndOn(context)) "ON" else "OFF"}"
+        keepAwakeToggle.text = "☼  Keep Screen Awake: ${if (keepAwake) "ON" else "OFF"}"
+        listOf(crosshairToggle, statsToggle, dndToggle, keepAwakeToggle).forEach {
+            it.setTextColor(if (it.text.toString().endsWith("ON")) red else white)
+        }
+    }
+
+    private fun refreshMonitor() {
+        if (!::monitorText.isInitialized) return
+        try {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val memory = ActivityManager.MemoryInfo()
+            am.getMemoryInfo(memory)
+            val totalGb = memory.totalMem / (1024f * 1024f * 1024f)
+            val usedGb = (memory.totalMem - memory.availMem) / (1024f * 1024f * 1024f)
+            val refresh = if (Build.VERSION.SDK_INT >= 30) {
+                context.display?.refreshRate ?: 60f
+            } else {
+                @Suppress("DEPRECATION")
+                (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate
+            }
+            val battery = context.registerReceiver(null, android.content.IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val level = battery?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+            val scale = battery?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+            val percent = if (level >= 0 && scale > 0) (level * 100f / scale).roundToInt() else -1
+            val tempTenths = battery?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE) ?: Int.MIN_VALUE
+            val batteryTemp = if (tempTenths != Int.MIN_VALUE) "${tempTenths / 10f}°C BAT" else "BAT TEMP N/A"
+            monitorText.text = "FPS N/A  •  CPU N/A\nRAM ${"%.1f".format(usedGb)}/${"%.1f".format(totalGb)} GB  •  ${"%.0f".format(refresh)} Hz\nBAT ${if (percent >= 0) "$percent%" else "N/A"}  •  $batteryTemp"
+        } catch (_: Exception) {
+            monitorText.text = "FPS N/A  •  CPU N/A  •  MONITOR UNAVAILABLE"
+        }
+    }
+
+    private fun updateKeepAwakeFlag() {
+        val lp = params ?: return
+        lp.flags = if (keepAwake) lp.flags or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        else lp.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON.inv()
+        rootView?.let { try { windowManager.updateViewLayout(it, lp) } catch (_: Exception) {} }
+        refreshToggleLabels()
     }
 
     private fun setExpanded(value: Boolean) {
         expanded = value
-        panelContainer.visibility = if (expanded) android.view.View.VISIBLE else android.view.View.GONE
+        panel.visibility = if (value) View.VISIBLE else View.GONE
+        handle.text = if (value) "GS  HUD  ▾" else "GS  ❯❯"
+        refreshMonitor()
     }
 
     fun hide() {
-        rootView?.let {
-            try { windowManager.removeView(it) } catch (e: IllegalArgumentException) { /* already removed */ }
-        }
-        rootView = null
-        params = null
+        rootView?.let { try { windowManager.removeView(it) } catch (_: IllegalArgumentException) {} }
+        rootView = null; params = null
     }
 
-    private fun attachDragAndTapHandling(
-        tapTarget: TextView,
-        windowView: LinearLayout,
-        layoutParams: WindowManager.LayoutParams
-    ) {
-        var initialX = 0
-        var initialY = 0
-        var touchX = 0f
-        var touchY = 0f
-        var moved = false
-
-        tapTarget.setOnTouchListener { v, event ->
+    private fun attachDragAndTapHandling(target: TextView, windowView: LinearLayout, lp: WindowManager.LayoutParams) {
+        var downX = 0f; var downY = 0f; var startX = 0; var startY = 0; var moved = false
+        target.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    initialX = layoutParams.x
-                    initialY = layoutParams.y
-                    touchX = event.rawX
-                    touchY = event.rawY
-                    moved = false
-                    true
+                    downX = event.rawX; downY = event.rawY; startX = lp.x; startY = lp.y; moved = false; true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val dx = event.rawX - touchX
-                    val dy = event.rawY - touchY
-                    if (abs(dx) > 8 || abs(dy) > 8) moved = true
-                    layoutParams.x = initialX + dx.toInt()
-                    layoutParams.y = initialY + dy.toInt()
-                    windowManager.updateViewLayout(windowView, layoutParams)
+                    val dx = event.rawX - downX; val dy = event.rawY - downY
+                    if (abs(dx) > dp(6) || abs(dy) > dp(6)) moved = true
+                    if (moved) {
+                        lp.x = (startX + dx).roundToInt(); lp.y = (startY + dy).roundToInt()
+                        try { windowManager.updateViewLayout(windowView, lp) } catch (_: Exception) {}
+                    }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     if (!moved) setExpanded(!expanded)
+                    else prefs.edit().putInt("x", lp.x).putInt("y", lp.y).apply()
                     true
                 }
-                else -> false
+                else -> true
             }
         }
+    }
+
+    private fun launch(clazz: Class<*>) {
+        try { context.startActivity(Intent(context, clazz).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        catch (_: Exception) { toast("Tidak dapat membuka fitur") }
+    }
+
+    private fun launchSettings(action: String) {
+        try { context.startActivity(Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        catch (_: Exception) { toast("Pengaturan tidak tersedia") }
+    }
+
+    private fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    private fun dp(value: Int): Int = (value * context.resources.displayMetrics.density).roundToInt()
+
+    private fun shape(color: Int, stroke: Int, strokeDp: Float, radiusDp: Float) = GradientDrawable().apply {
+        setColor(color)
+        setCornerRadius(dp(radiusDp.roundToInt()).toFloat())
+        setStroke(dp(strokeDp.roundToInt().coerceAtLeast(1)), stroke)
     }
 }
